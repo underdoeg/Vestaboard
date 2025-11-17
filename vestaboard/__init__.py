@@ -168,7 +168,7 @@ class Board:
         )
         req.raise_for_status()
 
-    def raw(self, charList: list, pad=None):
+    def raw(self, charList: list, pad=None, params=None):
         """
         Posts already-formatted characters to the board.
 
@@ -214,8 +214,10 @@ class Board:
                     if len(charList) < 6:
                         charList.insert(0, base_filler)
         finalText = Formatter()._raw(charList)
+        if params:
+            finalText.update(params)
         if self.localKey and self.localIP:
-            self._raw_local(finalText["characters"])
+            self._raw_local(finalText)
         elif self.readWrite and self.apiKey:
             headers = {
                 "X-Vestaboard-Read-Write-Key": self.apiKey,
@@ -224,7 +226,7 @@ class Board:
             requests.post(
                 vbUrls.readWrite,
                 headers=headers,
-                data=json.dumps(finalText["characters"]),
+                data=json.dumps(finalText),
                 timeout=self.timeout,
             )
         else:
@@ -366,7 +368,7 @@ class Board:
         )
         res.raise_for_status()
 
-    def _sendScreensNonBlocking(self, screens, delay):
+    def _sendScreensNonBlocking(self, screens, delay, params=None):
         for screenIndex in range(len(screens)):
             screen = screens[screenIndex]
             isLastScreen = screenIndex == len(screens) - 1
@@ -389,9 +391,11 @@ class Board:
                 del screen[6:]
 
             finalText = Formatter()._raw(screen)
+            if params:
+                finalText.update(params)
             print(f"Sending screen {screenIndex + 1} of {len(screens)}")
             if self.localKey and self.localIP:
-                self._raw_local(finalText["characters"])
+                self._raw_local(finalText)
             elif self.readWrite and self.apiKey:
                 headers = {
                     "X-Vestaboard-Read-Write-Key": self.apiKey,
@@ -400,7 +404,7 @@ class Board:
                 requests.post(
                     vbUrls.readWrite,
                     headers=headers,
-                    data=json.dumps(finalText["characters"]),
+                    data=json.dumps(finalText),
                     timeout=self.timeout,
                 )
             else:
