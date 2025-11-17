@@ -25,6 +25,7 @@ class Board:
         localApi: dict = None,
         readWrite: bool = False,
         validateKey: bool = False,
+        timeout: float = 5,
     ):
         """
         Returns an instance of Board().
@@ -58,6 +59,7 @@ class Board:
         self.localIP = ""
         self.readWrite = readWrite
         self.validateKey = validateKey
+        self.timeout = timeout
 
         if self.localOptions is not None:
             if self.checkAndEnableLocalAPI():
@@ -162,7 +164,7 @@ class Board:
             vbUrls.post.format(self.subscriptionId),
             headers=headers,
             json=finalText,
-            timeout=5,
+            timeout=self.timeout,
         )
         req.raise_for_status()
 
@@ -223,7 +225,7 @@ class Board:
                 vbUrls.readWrite,
                 headers=headers,
                 data=json.dumps(finalText["characters"]),
-                timeout=5,
+                timeout=self.timeout,
             )
         else:
             headers = {
@@ -360,7 +362,7 @@ class Board:
             vbUrls.postLocal.format(self.localIP),
             headers=localHeader,
             data=json.dumps(chars),
-            timeout=5,
+            timeout=self.timeout,
         )
         res.raise_for_status()
 
@@ -399,7 +401,7 @@ class Board:
                     vbUrls.readWrite,
                     headers=headers,
                     data=json.dumps(finalText["characters"]),
-                    timeout=5,
+                    timeout=self.timeout,
                 )
             else:
                 headers = {
@@ -410,7 +412,7 @@ class Board:
                     vbUrls.post.format(self.subscriptionId),
                     headers=headers,
                     json=finalText,
-                    timeout=5,
+                    timeout=self.timeout,
                 )
             if not isLastScreen:
                 time.sleep(delay)
